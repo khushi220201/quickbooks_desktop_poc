@@ -3,6 +3,8 @@ import  fs from 'fs';
 const soap = require('soap');
 
 const server = http.createServer((req, res) => {
+    console.log("in")
+    console.log('req: ', req);
     res.end('404: Not Found: ' + req.url);
 });
 
@@ -18,7 +20,7 @@ function buildWsdl(): string {
 class Server {
     private wsdl: string;
     private webService: any;
-
+    
     constructor() {
         this.wsdl = buildWsdl();
         this.webService = require('./web-service');
@@ -27,13 +29,12 @@ class Server {
     public run(): void {
         let soapServer: any;
         server.listen(port);
-        soapServer = soap.listen(server, '/wsdl', this.webService.service, this.wsdl);
+        soapServer = soap.listen(server, '/reuse-infra/qbd', this.webService.service, this.wsdl);
         console.log('Quickbooks SOAP Server listening on port ' + port);
     }
 
     public setQBXMLHandler(qbXMLHandler: any): void {
-        // console.log('qbXMLHandler: ', qbXMLHandler);
-        this.webService.setQBXMLHandler(qbXMLHandler);
+        this.webService.setQBXMLHandler(qbXMLHandler.fetchRequests);
     }
 }
 

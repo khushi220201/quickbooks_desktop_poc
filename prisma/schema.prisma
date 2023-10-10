@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Connections {
+  id                 Int       @id @default(autoincrement())
+  organizationId     String?
+  channelType        String?
+  channelName        String?
+  companyName        String?
+  companyId          String?
+  tokenDetails       String?
+  isActiveConnection Boolean   @default(true)
+  createdDate        DateTime? @default(now())
+  modifiedDate       DateTime? @default(now())
+  createdBy          String?
+  modifiedBy         String?
+}
+
+model Company {
+  id          String        @id
+  companyName String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  CompanyRole CompanyRole[]
+}
+
+model CompanyRole {
+  id        String   @id
+  userId    String?
+  roleId    String
+  companyId String?
+  status    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Company   Company? @relation(fields: [companyId], references: [id])
+  Role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  User      User?    @relation(fields: [userId], references: [id])
+}
+
+model Integrations {
+  id                               Int       @id @default(autoincrement())
+  organizationId                   String
+  fromConnectionId                 Int
+  toConnectionId                   Int
+  connectionName                   String?
+  syncConfiguration                String?
+  salesConfiguration               String?
+  purchaseConfiguration            String?
+  cogsConfiguration                String?
+  taxConfiguration                 String?
+  productConfiguration             String?
+  refundConfiguration              String?
+  customConfiguration              String?
+  customServiceBusConnectionstring String?
+  isActiveIntegration              Boolean?
+  createdDate                      DateTime? @default(now())
+  modifiedDate                     DateTime? @default(now())
+  createdBy                        String?
+  modifiedBy                       String?
+}
+
+model Permission {
+  id             String   @id
+  permissionName String
+  all            Boolean  @default(false)
+  view           Boolean  @default(false)
+  edit           Boolean  @default(false)
+  delete         Boolean  @default(false)
+  add            Boolean  @default(false)
+  roleId         String
+  sortId         Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  Role           Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  id              String        @id
+  roleName        String
+  roleDescription String
+  isCompanyAdmin  Boolean       @default(false)
+  isAdminRole     Boolean       @default(false)
+  status          Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  CompanyRole     CompanyRole[]
+  Permission      Permission[]
+}
+
+model User {
+  id                  String        @id
+  email               String        @unique
+  firstName           String?
+  lastName            String?
+  phone               String?
+  password            String?
+  forgotPasswordToken String?
+  isVerified          Boolean       @default(false)
+  status              Boolean       @default(false)
+  profileImg          String?
+  accessToken         String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime
+  CompanyRole         CompanyRole[]
+}

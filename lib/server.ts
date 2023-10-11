@@ -1,10 +1,10 @@
 import  http from 'http';
-import  fs from 'fs';
+import  fs from 'fs'; 
 const soap = require('soap');
-
-const server = http.createServer((req, res) => {
-    console.log("in")
-    console.log('req: ', req);
+ 
+const server = http.createServer((req:any, res:any) => {
+    // console.log("in")
+    // console.log('req: ', req.params);
     res.end('404: Not Found: ' + req.url);
 });
 
@@ -34,7 +34,8 @@ class Server {
     }
 
     public setQBXMLHandler(qbXMLHandler: any): void {
-        this.webService.setQBXMLHandler(qbXMLHandler.fetchRequests);
+        this.webService.setQBXMLHandler(qbXMLHandler)
+        // this.webService.setQBXMLHandler(qbXMLHandler.fetchRequests);
     }
 }
 

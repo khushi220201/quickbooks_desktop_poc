@@ -16,6 +16,7 @@ interface QBXMLHandler {
 
 function buildRequests(callback: (err: any, requestArray: string[]) => void): void {
     console.log('1 from qbxml: ');
+    // console.log(requestArray.length);
     // console.log('callback: ', callback);
     const requests: string[] = [];
     const xml = convert(
@@ -38,13 +39,13 @@ function buildRequests(callback: (err: any, requestArray: string[]) => void): vo
 const QBXMLHandler: QBXMLHandler = {
     fetchRequests: buildRequests,
     handleResponse: (response: QBXMLResponse) => {
-        console.log('2 from qbxml: ');
-
+        console.log('1 from qbxml: ');
+       
         // console.log('response: ', response);
         // console.log(response);
     },
     didReceiveError: (error: QBXMLResponse) => {
-        console.log('3 from qbxml: ');
+        console.log('2 from qbxml: ');
 
         console.log('error: ', error);
         // console.log(error);

@@ -1,22 +1,11 @@
 import semver from "semver";
 import uuid from "node-uuid";
 import qbdRepository from "../app/repositories/qbdRepository";
-import express from "express";
-import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
 
-const url = require("url");
 
 dotenv.config();
-// const app = express();
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.text({ type: 'text/xml' }));
-// // Import routes
-// app.get('/reuse-infra/qbd', (req, res) => {
-//     console.log('req: ', req.query);
 
-// });
 const MIN_SUPPORTED_VERSION: string = "1.0.0";
 const RECOMMENDED_VERSION: string = "2.0.1";
 
@@ -25,8 +14,6 @@ let webService: any;
 let counter: number = 0;
 let lastError: string = "";
 
-const username: string = process.env.QB_USERNAME;
-const password: string = process.env.QB_PASSWORD;
 const companyFile: string = process.env.QB_COMPANY_FILE;
 
 let requestQueue: any[] = [];
@@ -42,9 +29,10 @@ webService = {
 webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.serverVersion = function (
   args: any,
   callback: any
-) {
-  // console.log("args: ", args);
-  //   console.log('req: ', req);
+  ) {
+    console.log('args: ', args);
+  console.log('callback: ',  callback);
+
   const retVal: string = "0.2.0";
   console.log("1 from web-service: ");
 
@@ -83,23 +71,21 @@ webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.authenticate =
     console.log("3 from web-service:");
     const authReturn: any[] = [uuid.v1()];
 
-    const userId = 15;
     const { strUserName, strPassword } = args;
 
     const authenticatedUser = await qbdRepository.checkUserCredential(
-      userId,
       strUserName,
       strPassword
-    );
+      );
     if (
       authenticatedUser!=null &&
       args.strUserName.trim() === authenticatedUser.username &&
       args.strPassword.trim() === authenticatedUser.password
     ) {
       const updateConnection = async (id: any) => {
-        const data = await qbdRepository.updateActiveConnection(id);
+        await qbdRepository.updateActiveConnection(id);
       };
-      const updatedConnection = await updateConnection(userId);
+      await updateConnection(authenticatedUser.username);
       if (typeof qbXMLHandler.fetchRequests === "function") {
         qbXMLHandler.fetchRequests(function (err: any, requests: string[]) {
           console.log("err: ", err);
@@ -139,8 +125,6 @@ webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.sendRequestXML = function (
 ) {
   console.log("4 from web-service: ");
 
-  // console.log('sendRequestXML: ');
-  // console.log('args: ', args);
   let request: string = "";
   const totalRequests: number = requestQueue.length;
 
@@ -155,6 +139,7 @@ webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.sendRequestXML = function (
   callback({
     sendRequestXMLResult: { string: request },
   });
+  
 };
 
 webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.receiveResponseXML =
@@ -198,8 +183,8 @@ webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.receiveResponseXML =
 webService.QBWebConnectorSvc.QBWebConnectorSvcSoap.connectionError = function (
   args: any,
   callback: any
-) {
-  console.log("6 from web-service: ");
+  ) {
+    console.log("6 from web-service: ");
 
   console.log(
     "QB CONNECTION ERROR: " + args.message + " (" + args.hresult + ")"
@@ -245,9 +230,3 @@ module.exports = {
     qbXMLHandler = xmlHandler;
   },
 };
-
-// const authenticateUser = async (id: any) => {
-//     console.log('authenticateUser: ');
-//   const data = await qbdRepository.checkUserCredential(id);
-//   return data;
-// };

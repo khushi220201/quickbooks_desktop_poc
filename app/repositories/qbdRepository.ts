@@ -1,13 +1,15 @@
 import { prisma } from "../client/prisma";
 
 class QbdRepository {
-  async checkUserCredential(id:any, username:any, password:any) {
+  async checkUserCredential(username:any, password:any) {
     try {
       // Use Prisma to find the user by id
-      const user = await prisma.connections.findUnique({
-        where: {
-          id: id,
-        },
+      const user = await prisma.connections.findFirst({
+        where:{
+          tokenDetails:{
+            contains:username
+          }
+        }
       });
   
       // Check if a user with the given id exists
@@ -36,11 +38,13 @@ class QbdRepository {
     }
   }
 
-  async updateActiveConnection(id:any) {
+  async updateActiveConnection(username:any) {
     try {
-      await prisma.connections.update({
+      const data = await prisma.connections.updateMany({
         where: {
-          id: id,
+          tokenDetails: {
+            contains:username
+          },
         },
         data: {
           isActiveConnection: true,
